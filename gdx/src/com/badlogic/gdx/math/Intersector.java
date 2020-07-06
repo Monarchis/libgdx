@@ -265,7 +265,7 @@ public final class Intersector {
 		return 0;
 	}
 
-	/** Checks whether the given point is in the polygon.
+	/** Determines whether the given point is in the polygon.
 	 * 
 	 * @param polygon The polygon vertices passed as an array
 	 * @param point The point
@@ -284,25 +284,24 @@ public final class Intersector {
 		return oddNodes;
 	}
 
-	/** Checks if the specified point is in the polygon.
+	/** Determines whether the given point is in the polygon.
 	 * 
 	 * @param offset Starting polygon index.
 	 * @param count Number of array indices to use after offset.
 	 * @return {@code true} if the point is in the polygon. */
 	public static boolean isPointInPolygon (float[] polygon, int offset, int count, float x, float y) {
+		float lastX = polygon[offset + count - 2];
+		float lastY = polygon[offset + count - 1];
 		boolean oddNodes = false;
-		float sx = polygon[offset], sy = polygon[offset + 1], y1 = sy;
-		int yi = offset + 3;
-		for (int n = offset + count; yi < n; yi += 2) {
-			float y2 = polygon[yi];
-			if ((y2 < y && y1 >= y) || (y1 < y && y2 >= y)) {
-				float x2 = polygon[yi - 1];
-				if (x2 + (y - y2) / (y1 - y2) * (polygon[yi - 3] - x2) < x) oddNodes = !oddNodes;
+		int n = offset + count;
+		for (int i = offset; i < n; i+=2) {
+			float vertexX = polygon[i];
+			float vertexY = polygon[i + 1];
+			if ((vertexY < y && lastY >= y) || (lastY < y && vertexY >= y)) {
+				if (vertexX + (y - vertexY) / (lastY - vertexY) * (lastX - vertexX) < x) oddNodes = !oddNodes;
 			}
-			y1 = y2;
-		}
-		if ((sy < y && y1 >= y) || (y1 < y && sy >= y)) {
-			if (sx + (y - sy) / (y1 - sy) * (polygon[yi - 3] - sx) < x) oddNodes = !oddNodes;
+			lastX = vertexX;
+			lastY = vertexY;
 		}
 		return oddNodes;
 	}

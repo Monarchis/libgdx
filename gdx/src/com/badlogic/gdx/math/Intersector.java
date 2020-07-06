@@ -398,7 +398,15 @@ public final class Intersector {
     static Vector2 v2c = new Vector2();
     static Vector2 v2d = new Vector2();
 
-	/** Returns the distance between the given line and point. Note the specified line is not a line segment. */
+	/** Returns the distance between the given line and point.
+	 *
+	 * @param startX the x-coordinate of the line's start point
+	 * @param startY the y-coordinate of the line's start point
+	 * @param endX the x-coordinate of the line's end point
+	 * @param endY the y-coordinate of the line's end point
+	 * @param pointX the x-coordinate of the point
+	 * @param pointY the y-coordinate of the point
+	 * @return the distance to the nearest line point */
 	public static float distanceLinePoint (float startX, float startY, float endX, float endY, float pointX, float pointY) {
 		float normalLength = (float)Math.sqrt((endX - startX) * (endX - startX) + (endY - startY) * (endY - startY));
 		return Math.abs((pointX - startX) * (endY - startY) - (pointY - startY) * (endX - startX)) / normalLength;

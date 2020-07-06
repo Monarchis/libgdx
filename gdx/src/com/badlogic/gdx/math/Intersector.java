@@ -64,23 +64,34 @@ public final class Intersector {
 		return true;
 	}
 
-	/** Returns {@code true} if the given point is inside the triangle. */
+	/** Determines if the given point is inside the triangle.
+	 *
+	 * @param p the point
+	 * @param a the first vertex of the triangle
+	 * @param b the second vertex of the triangle
+	 * @param c the third vertex of the triangle
+	 * @return {@code true} whether the given point is in the triangle */
 	public static boolean isPointInTriangle (Vector2 p, Vector2 a, Vector2 b, Vector2 c) {
-		float px1 = p.x - a.x;
-		float py1 = p.y - a.y;
-		boolean side12 = (b.x - a.x) * py1 - (b.y - a.y) * px1 > 0;
-		if ((c.x - a.x) * py1 - (c.y - a.y) * px1 > 0 == side12) return false;
-		if ((c.x - b.x) * (p.y - b.y) - (c.y - b.y) * (p.x - b.x) > 0 != side12) return false;
-		return true;
+		return isPointInTriangle(p.x, p.y, a.x, a.y, b.y, b.x, c.x, c.y);
 	}
 
-	/** Returns {@code true} if the given point is inside the triangle. */
+	/** Determines if the given point is inside the triangle.
+	 *
+	 * @param px the x-coordinate of the point
+	 * @param py the y-coordinate of the point
+	 * @param ax the x-coordinate of the triangles first vertex
+	 * @param ay the y-coordinate of the triangles first vertex
+	 * @param bx the x-coordinate of the triangles second vertex
+	 * @param by the x-coordinate of the triangles second vertex
+	 * @param cx the x-coordinate of the triangles second vertex
+	 * @param cy the x-coordinate of the triangles second vertex
+	 * @return {@code true} whether the given point is in the triangle */
 	public static boolean isPointInTriangle (float px, float py, float ax, float ay, float bx, float by, float cx, float cy) {
 		float px1 = px - ax;
 		float py1 = py - ay;
-		boolean side12 = (bx - ax) * py1 - (by - ay) * px1 > 0;
-		if ((cx - ax) * py1 - (cy - ay) * px1 > 0 == side12) return false;
-		if ((cx - bx) * (py - by) - (cy - by) * (px - bx) > 0 != side12) return false;
+		boolean side12 = (bx - ax) * py1 - (by - ay) * px1 > MathUtils.FLOAT_ROUNDING_ERROR;
+		if ((cx - ax) * py1 - (cy - ay) * px1 > MathUtils.FLOAT_ROUNDING_ERROR == side12) return false;
+		if ((cx - bx) * (py - by) - (cy - by) * (px - bx) > MathUtils.FLOAT_ROUNDING_ERROR != side12) return false;
 		return true;
 	}
 

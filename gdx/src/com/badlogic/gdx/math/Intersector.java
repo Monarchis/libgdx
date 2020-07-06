@@ -582,69 +582,68 @@ public final class Intersector {
 				pointX, pointY, secondIsDirection, nearest);
 	}
 
-	/** Checks whether the given line segment intersects the given circle.
+	/** Checks whether the given segment intersects the given circle.
 	 * 
-	 * @param start The start point of the line segment
-	 * @param end The end point of the line segment
+	 * @param start The start point of the segment
+	 * @param end The end point of the segment
 	 * @param center The center of the circle
 	 * @param squareRadius The squared radius of the circle
-	 * @return Whether the line segment and the circle intersect */
+	 * @return Whether the segment and the circle intersect */
 	public static boolean intersectSegmentCircle (Vector2 start, Vector2 end, Vector2 center, float squareRadius) {
-		tmp.set(end.x - start.x, end.y - start.y, 0);
-		tmp1.set(center.x - start.x, center.y - start.y, 0);
-		float l = tmp.len();
-		float u = tmp1.dot(tmp.nor());
-		if (u <= 0) {
-			tmp2.set(start.x, start.y, 0);
-		} else if (u >= l) {
-			tmp2.set(end.x, end.y, 0);
-		} else {
-			tmp3.set(tmp.scl(u)); // remember tmp is already normalized
-			tmp2.set(tmp3.x + start.x, tmp3.y + start.y, 0);
-		}
+		return intersectSegmentCircle(start, end, center.x, center.y, squareRadius, null);
+	}
 
-		float x = center.x - tmp2.x;
-		float y = center.y - tmp2.y;
-
-		return x * x + y * y <= squareRadius;
+	/** Checks whether the given segment intersects the given circle.
+	 * 
+	 * @param start The start point of the segment
+	 * @param end The end point of the segment
+	 * @param circle The circle
+	 * @param mtv A Minimum Translation Vector to fill in the case of a collision, or null (optional).
+	 * @return Whether the segment and the circle intersect */
+	public static boolean intersectSegmentCircle (Vector2 start, Vector2 end, Circle circle, MinimumTranslationVector mtv) {
+		return intersectSegmentCircle(start, end, circle.x, circle.y, circle.radius * circle.radius, mtv);
 	}
 
 	/** Checks whether the given line segment intersects the given circle.
-	 * 
-	 * @param start The start point of the line segment
-	 * @param end The end point of the line segment
-	 * @param circle The circle
-	 * @param mtv A Minimum Translation Vector to fill in the case of a collision, or {@code null} (optional).
-	 * @return Whether the line segment and the circle intersect */
-	public static boolean intersectSegmentCircle (Vector2 start, Vector2 end, Circle circle, MinimumTranslationVector mtv) {
-		v2a.set(end).sub(start);
-		v2b.set(circle.x - start.x, circle.y - start.y);
-		float len = v2a.len();
+	 *
+	 * @param start The start point of the segment
+	 * @param end The end point of the segment
+	 * @param centerX The x-coordinate of the circle's center
+	 * @param centerY The y-coordinate of the circle's center
+	 * @param squareRadius The squared radius of the circle
+	 * @param mtv A Minimum Translation Vector to fill in the case of a collision, or null (optional).
+	 * @return Whether the segment and the circle intersect */
+	public static boolean intersectSegmentCircle (Vector2 start, Vector2 end, float centerX, float centerY, float squareRadius,
+	  	MinimumTranslationVector mtv) {
+
+		v2a.set(end.x - start.x, end.y - start.y);
+		v2b.set(centerX - start.x, centerY - start.y);
+		float l = v2a.len();
 		float u = v2b.dot(v2a.nor());
-		if (u <= 0) {
-			v2c.set(start);
-		} else if (u >= len) {
-			v2c.set(end);
+		if (u < MathUtils.FLOAT_ROUNDING_ERROR) {
+			v2c.set(start.x, start.y);
+		} else if (u >= l) {
+			v2c.set(end.x, end.y);
 		} else {
-			v2d.set(v2a.scl(u)); // remember v2a is already normalized
-			v2c.set(v2d).add(start);
+			v2d.set(v2a.scl(u)); // remember tmp is already normalized
+			v2c.set(v2d.x + start.x, v2d.y + start.y);
 		}
 
-		v2a.set(v2c.x - circle.x, v2c.y - circle.y);
+		v2a.set(v2c.x - centerX, v2c.y - centerY);
 
 		if (mtv != null) {
 			// Handle special case of segment containing circle center
 			if (v2a.equals(Vector2.Zero)) {
 				v2d.set(end.y - start.y, start.x - end.x);
 				mtv.normal.set(v2d).nor();
-				mtv.depth = circle.radius;
+				mtv.depth = (float) Math.sqrt(squareRadius);
 			} else {
 				mtv.normal.set(v2a).nor();
-				mtv.depth = circle.radius - v2a.len();
+				mtv.depth = (float) Math.sqrt(squareRadius) - v2a.len();
 			}
 		}
 
-		return v2a.len2() <= circle.radius * circle.radius;
+		return v2a.len2() <= squareRadius;
 	}
 
 	/** @see #intersectRayRay(float, float, float, float, float, float, float, float, boolean, Vector2) */

@@ -404,14 +404,27 @@ public final class Intersector {
 		return Math.abs((pointX - startX) * (endY - startY) - (pointY - startY) * (endX - startX)) / normalLength;
 	}
 
-	/** Returns the distance between the given segment and point. */
+	/** Returns the distance between the given segment and point.
+	 *
+	 * @param startX the x-coordinate of the segment's start point
+	 * @param startY the y-coordinate of the segment's start point
+	 * @param endX the x-coordinate of the segment's end point
+	 * @param endY the y-coordinate of the segment's end point
+	 * @param pointX the x-coordinate of the point
+	 * @param pointY the y-coordinate of the point
+	 * @return the distance to the nearest segment point */
 	public static float distanceSegmentPoint (float startX, float startY, float endX, float endY, float pointX, float pointY) {
 		return nearestSegmentPoint(startX, startY, endX, endY, pointX, pointY, v2a).dst(pointX, pointY);
 	}
 
-	/** Returns the distance between the given segment and point. */
-	public static float distanceSegmentPoint (Vector2 start, Vector2 end, Vector2 point) {
-		return nearestSegmentPoint(start, end, point, v2a).dst(point);
+	/** Returns the distance between the given segment and point.
+	 *
+	 * @param origin the segment's start point
+	 * @param direction the segment's end point
+	 * @param point the point
+	 * @return the distance to the nearest segment point */
+	public static float distanceSegmentPoint (Vector2 origin, Vector2 direction, Vector2 point) {
+		return nearestSegmentPoint(origin, direction, point, v2a).dst(point);
 	}
 
 	/** @see #nearestSegmentPoint(float, float, float, float, float, float, float, float, boolean, Vector2) */

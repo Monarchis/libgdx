@@ -1551,7 +1551,7 @@ public final class Intersector {
 			float max2 = min2;
 			for (int j = offset2; j < end2; j += 2) {
 				// Counts the number of points that are within the projected area.
-				numInNormalDir -= pointLineSide(x1, y1, x2, y2, verts2[j], verts2[j + 1]);
+				numInNormalDir -= pointLineSide(x1, y1, x2, y2, verts2[j], verts2[j + 1]) >= 0 ? 1 : -1;
 				float p = axisX * verts2[j] + axisY * verts2[j + 1];
 				if (p < min2) {
 					min2 = p;
@@ -1606,7 +1606,7 @@ public final class Intersector {
 			for (int j = offset1; j < end1; j += 2) {
 				float p = axisX * verts1[j] + axisY * verts1[j + 1];
 				// Counts the number of points that are within the projected area.
-				numInNormalDir -= pointLineSide(x1, y1, x2, y2, verts1[j], verts1[j + 1]);
+				numInNormalDir -= pointLineSide(x1, y1, x2, y2, verts1[j], verts1[j + 1]) >= 0 ? 1 : -1;
 				if (p < min1) {
 					min1 = p;
 				} else if (p > max1) {

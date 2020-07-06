@@ -1210,16 +1210,21 @@ public final class Intersector {
 		return false;
 	}
 
-	/** Determines whether the given rectangles intersect and, if they do, sets the supplied {@code intersection} rectangle to the
+	/** Determines whether the given rectangles intersect and if they do, sets the supplied intersection rectangle to the
 	 * area of overlap.
-	 * 
-	 * @return Whether the rectangles intersect */
-	static public boolean intersectRectangles (Rectangle rectangle1, Rectangle rectangle2, Rectangle intersection) {
+	 *
+	 * @param rectangle1 the first rectangle
+	 * @param rectangle1 the second rectangle
+	 * @param intersection the intersection (optional)
+	 * @return {@code true} whether the rectangles intersect */
+	public static boolean intersectRectangles (Rectangle rectangle1, Rectangle rectangle2, Rectangle intersection) {
 		if (rectangle1.overlaps(rectangle2)) {
-			intersection.x = Math.max(rectangle1.x, rectangle2.x);
-			intersection.width = Math.min(rectangle1.x + rectangle1.width, rectangle2.x + rectangle2.width) - intersection.x;
-			intersection.y = Math.max(rectangle1.y, rectangle2.y);
-			intersection.height = Math.min(rectangle1.y + rectangle1.height, rectangle2.y + rectangle2.height) - intersection.y;
+			if (intersection != null) {
+				intersection.x = Math.max(rectangle1.x, rectangle2.x);
+				intersection.width = Math.min(rectangle1.x + rectangle1.width, rectangle2.x + rectangle2.width) - intersection.x;
+				intersection.y = Math.max(rectangle1.y, rectangle2.y);
+				intersection.height = Math.min(rectangle1.y + rectangle1.height, rectangle2.y + rectangle2.height) - intersection.y;
+			}
 			return true;
 		}
 		return false;
@@ -1232,14 +1237,18 @@ public final class Intersector {
 	 * @param endX y-coordinate end of line segment
 	 * @param endY y-coordinate end of line segment
 	 * @param rectangle rectangle that is being tested for collision
-	 * @return whether the rectangle intersects with the line segment */
+	 * @return {@code true} whether the rectangle intersects with the line segment */
 	public static boolean intersectSegmentRectangle (float startX, float startY, float endX, float endY, Rectangle rectangle) {
 		float rectangleEndX = rectangle.x + rectangle.width;
 		float rectangleEndY = rectangle.y + rectangle.height;
 
-		if (intersectSegments(startX, startY, endX, endY, rectangle.x, rectangle.y, rectangle.x, rectangleEndY, null)) return true;
+		if (rectangle.contains(startX, startY) || rectangle.contains(endX, endY)) return true;
 
-		if (intersectSegments(startX, startY, endX, endY, rectangle.x, rectangle.y, rectangleEndX, rectangle.y, null)) return true;
+		if (intersectSegments(startX, startY, endX, endY, rectangle.x, rectangle.y, rectangle.x, rectangleEndY, null))
+			return true;
+
+		if (intersectSegments(startX, startY, endX, endY, rectangle.x, rectangle.y, rectangleEndX, rectangle.y, null))
+			return true;
 
 		if (intersectSegments(startX, startY, endX, endY, rectangleEndX, rectangle.y, rectangleEndX, rectangleEndY, null))
 			return true;
@@ -1247,7 +1256,7 @@ public final class Intersector {
 		if (intersectSegments(startX, startY, endX, endY, rectangle.x, rectangleEndY, rectangleEndX, rectangleEndY, null))
 			return true;
 
-		return rectangle.contains(startX, startY);
+		return false;
 	}
 
 	/** {@link #intersectSegmentRectangle(float, float, float, float, Rectangle)} */

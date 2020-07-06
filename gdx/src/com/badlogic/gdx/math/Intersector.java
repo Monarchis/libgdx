@@ -1282,30 +1282,35 @@ public final class Intersector {
 		return intersectSegmentRectangle(start.x, start.y, end.x, end.y, rectangle);
 	}
 
-	/** Check whether the given line segment and {@link Polygon} intersect.
+	/** Determines whether the given segment and {@link Polygon} intersect.
 	 * 
 	 * @param p1 The first point of the segment
 	 * @param p2 The second point of the segment
-	 * @return Whether polygon and segment intersect */
+	 * @param polygon the polygon to intersect
+	 * @return {@code true} whether polygon and segment intersect */
 	public static boolean intersectSegmentPolygon (Vector2 p1, Vector2 p2, Polygon polygon) {
 		float[] vertices = polygon.getTransformedVertices();
-		float x1 = p1.x, y1 = p1.y, x2 = p2.x, y2 = p2.y;
-		int n = vertices.length;
-		float x3 = vertices[n - 2], y3 = vertices[n - 1];
+		return intersectSegmentPolygon(p1.x, p1.y, p2.x, p2.y, vertices, 0, vertices.length, null);
+	}
+
+	/** Determines whether the given segment and {@link Polygon} intersect.
+	 *
+	 * @param x1 The x-coordinate of the start point of the segment
+	 * @param y1 The y-coordinate of the start point of the segment
+	 * @param x2 The x-coordinate of the end point of the segment
+	 * @param y2 The y-coordinate of the end point of the segment
+	 * @param polygon the polygon
+	 * @param intersection the point of intersection
+	 * @return {@code true} whether polygon and segment intersect */
+	public static boolean intersectSegmentPolygon (float x1, float y1, float x2, float y2, float[] polygon, int offset, int count,
+	   Vector2 intersection) {
+
+		int n = offset + count;
+		float x3 = polygon[n - 2], y3 = polygon[n - 1];
 		for (int i = 0; i < n; i += 2) {
-			float x4 = vertices[i], y4 = vertices[i + 1];
-			float d = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
-			if (d != 0) {
-				float yd = y1 - y3;
-				float xd = x1 - x3;
-				float ua = ((x4 - x3) * yd - (y4 - y3) * xd) / d;
-				if (ua >= 0 && ua <= 1) {
-					float ub = ((x2 - x1) * yd - (y2 - y1) * xd) / d;
-					if (ub >= 0 && ub <= 1) {
-						return true;
-					}
-				}
-			}
+			float x4 = polygon[i], y4 = polygon[i + 1];
+			if (intersectSegments(x1, y1, x2, y2, x3, y3, x4, y4, intersection))
+				return true;
 			x3 = x4;
 			y3 = y4;
 		}

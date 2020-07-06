@@ -317,70 +317,54 @@ public final class Intersector {
 	 * 
 	 * @param p1 The polygon that is being clipped
 	 * @param p2 The clip polygon
-	 * @param overlap The intersection of the two polygons (can be {@code null}, if an intersection polygon is not needed)
-	 * @return Whether the two polygons intersect. */
-	public static boolean intersectPolygons (Polygon p1, Polygon p2, Polygon overlap) {
-		if (p1.getVertices().length == 0 || p2.getVertices().length == 0) {
-			return false;
-		}
-		Vector2 ip = Intersector.ip, ep1 = Intersector.ep1, ep2 = Intersector.ep2, s = Intersector.s, e = Intersector.e;
-		FloatArray floatArray = Intersector.floatArray, floatArray2 = Intersector.floatArray2;
-		floatArray.clear();
-		floatArray2.clear();
-		floatArray2.addAll(p1.getTransformedVertices());
-		float[] vertices2 = p2.getTransformedVertices();
-		for (int i = 0, last = vertices2.length - 2; i <= last; i += 2) {
-			ep1.set(vertices2[i], vertices2[i + 1]);
-			// wrap around to beginning of array if index points to end;
-			if (i < last)
-				ep2.set(vertices2[i + 2], vertices2[i + 3]);
-			else
-				ep2.set(vertices2[0], vertices2[1]);
-			if (floatArray2.size == 0) return false;
-			s.set(floatArray2.get(floatArray2.size - 2), floatArray2.get(floatArray2.size - 1));
-			for (int j = 0; j < floatArray2.size; j += 2) {
-				e.set(floatArray2.get(j), floatArray2.get(j + 1));
-				// determine if point is inside clip edge
-				boolean side = Intersector.pointLineSide(ep2, ep1, s) > 0;
-				if (Intersector.pointLineSide(ep2, ep1, e) > 0) {
-					if (!side) {
-						Intersector.intersectLines(s, e, ep1, ep2, ip);
-						if (floatArray.size < 2 || floatArray.get(floatArray.size - 2) != ip.x
-							|| floatArray.get(floatArray.size - 1) != ip.y) {
-							floatArray.add(ip.x);
-							floatArray.add(ip.y);
-						}
-					}
-					floatArray.add(e.x);
-					floatArray.add(e.y);
-				} else if (side) {
-					Intersector.intersectLines(s, e, ep1, ep2, ip);
-					floatArray.add(ip.x);
-					floatArray.add(ip.y);
-				}
-				s.set(e.x, e.y);
-			}
-			floatArray2.clear();
-			floatArray2.addAll(floatArray);
-			floatArray.clear();
-		}
-		if (floatArray2.size != 0) {
-			if (overlap != null) {
-				if (overlap.getVertices().length == floatArray2.size)
-					System.arraycopy(floatArray2.items, 0, overlap.getVertices(), 0, floatArray2.size);
-				else
-					overlap.setVertices(floatArray2.toArray());
-			}
-			return true;
-		}
-		return false;
+	 * @param intersection The first intersection of the two polygons found.
+	 * @return {@code true} whether the two polygons intersect. */
+	public static boolean intersectPolygons (Polygon p1, Polygon p2, Vector2 intersection) {
+		float[] polygon1 = p1.getTransformedVertices();
+		float[] polygon2 = p2.getTransformedVertices();
+		return intersectPolygons(polygon1, 0, polygon1.length, polygon2, 0, polygon2.length, intersection);
 	}
 
-	/** Returns {@code true} if the specified poygons intersect. */
-	static public boolean intersectPolygons (FloatArray polygon1, FloatArray polygon2) {
-		if (Intersector.isPointInPolygon(polygon1.items, 0, polygon1.size, polygon2.items[0], polygon2.items[1])) return true;
-		if (Intersector.isPointInPolygon(polygon2.items, 0, polygon2.size, polygon1.items[0], polygon1.items[1])) return true;
-		return intersectPolygonEdges(polygon1, polygon2);
+	/** Determines whether the lines of the specified polygons intersect.
+	 *
+	 * @param polygon1 the first polygon
+	 * @param polygon2 the second polygon
+	 * @return {@code true} whether the polygons intersect */
+	public static boolean intersectPolygons (FloatArray polygon1, FloatArray polygon2) {
+		return intersectPolygons(polygon1, polygon2, null);
+	}
+
+	/** Determines whether the lines of the specified polygons intersect.
+	 *
+	 * @param polygon1 the first polygon
+	 * @param polygon2 the second polygon
+	 * @param intersection the first found intersection
+	 * @return {@code true} whether the polygons intersect */
+	public static boolean intersectPolygons (FloatArray polygon1, FloatArray polygon2, Vector2 intersection) {
+		return intersectPolygons(polygon1.items, 0, polygon1.size, polygon2.items, 0, polygon2.size, intersection);
+	}
+
+	/** Determines whether the lines of the specified polygons intersect.
+	 *
+	 * @param polygon1 the vertices of the first polygon
+	 * @param offset1 the offset of the first polygon's vertices
+	 * @param count1 the number of used vertex indices
+	 * @param polygon2 the vertices of the second polygon
+	 * @param offset2 the offset of the first polygon's vertices
+	 * @param count2 the number of used vertex indices
+	 * @param intersection the first found intersection
+	 * @return {@code true} whether the polygons intersect */
+	public static boolean intersectPolygons (float[] polygon1, int offset1, int count1, float[] polygon2, int offset2,
+		 int count2, Vector2 intersection) {
+		if (Intersector.isPointInPolygon(polygon1, offset1, count1, polygon2[offset2], polygon2[offset2 + 1])) {
+			if (intersection != null) intersection.set(polygon2[offset2], polygon2[offset2 + 1]);
+			return true;
+		}
+		if (Intersector.isPointInPolygon(polygon2, offset2, count2, polygon1[offset1], polygon1[offset1 + 1])) {
+			if (intersection != null) intersection.set(polygon1[offset1], polygon1[offset1 + 1]);
+			return true;
+		}
+		return intersectPolygonEdges(polygon1, offset1, count1, polygon2, offset2, count2, intersection);
 	}
 
 	/** Determines whether the lines of the specified polygons intersect.

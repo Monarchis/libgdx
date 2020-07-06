@@ -383,20 +383,42 @@ public final class Intersector {
 		return intersectPolygonEdges(polygon1, polygon2);
 	}
 
-	/** Returns {@code true} if the lines of the specified poygons intersect. */
-	static public boolean intersectPolygonEdges (FloatArray polygon1, FloatArray polygon2) {
-		int last1 = polygon1.size - 2, last2 = polygon2.size - 2;
-		float[] p1 = polygon1.items, p2 = polygon2.items;
-		float x1 = p1[last1], y1 = p1[last1 + 1];
-		for (int i = 0; i <= last1; i += 2) {
-			float x2 = p1[i], y2 = p1[i + 1];
-			float x3 = p2[last2], y3 = p2[last2 + 1];
-			for (int j = 0; j <= last2; j += 2) {
-				float x4 = p2[j], y4 = p2[j + 1];
-				if (intersectSegments(x1, y1, x2, y2, x3, y3, x4, y4, null)) return true;
-				x3 = x4;
-				y3 = y4;
-			}
+	/** Determines whether the lines of the specified polygons intersect.
+	 *
+	 * @param polygon1 the first polygon
+	 * @param polygon2 the second polygon
+	 * @return {@code true} whether the polygons intersect */
+	public static boolean intersectPolygonEdges (FloatArray polygon1, FloatArray polygon2) {
+		return intersectPolygonEdges(polygon1, polygon2, null);
+	}
+
+	/** Determines whether the lines of the specified polygons intersect.
+	 *
+	 * @param polygon1 the first polygon
+	 * @param polygon2 the second polygon
+	 * @param intersection the first found intersection
+	 * @return {@code true} whether the polygons intersect */
+	public static boolean intersectPolygonEdges (FloatArray polygon1, FloatArray polygon2, Vector2 intersection) {
+		return intersectPolygonEdges(polygon1.items, 0, polygon1.size, polygon2.items, 0, polygon2.size, intersection);
+	}
+
+	/** Determines whether the lines of the specified polygons intersect.
+	 *
+	 * @param polygon1 the vertices of the first polygon
+	 * @param offset1 the offset of the first polygon's vertices
+	 * @param count1 the number of used vertex indices
+	 * @param polygon2 the vertices of the second polygon
+	 * @param offset2 the offset of the first polygon's vertices
+	 * @param count2 the number of used vertex indices
+	 * @param intersection the first found intersection
+	 * @return {@code true} whether the polygons intersect */
+	public static boolean intersectPolygonEdges (float[] polygon1, int offset1, int count1, float[] polygon2, int offset2,
+		 int count2, Vector2 intersection) {
+		int n = offset1 + count1;
+		float x1 = polygon1[n - 2], y1 = polygon1[n - 1];
+		for (int i = offset1; i < n; i += 2) {
+			float x2 = polygon1[i], y2 = polygon1[i + 1];
+			if(intersectSegmentPolygon(x1, y1, x2, y2, polygon2, offset2, count2, intersection));
 			x1 = x2;
 			y1 = y2;
 		}

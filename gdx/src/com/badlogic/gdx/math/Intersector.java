@@ -616,26 +616,39 @@ public final class Intersector {
 		return v2a.len2() <= circle.radius * circle.radius;
 	}
 
-	/** Intersect two 2D Rays and return the scalar parameter of the first ray at the intersection point. You can get the
-	 * intersection point by: {@code Vector2 point(direction1).scl(scalar).add(start1);}.<p>
-	 * For more information, check: http://stackoverflow.com/a/565282/1091440
-	 * 
-	 * @param start1 Where the first ray start
-	 * @param direction1 The direction the first ray is pointing
-	 * @param start2 Where the second ray start
-	 * @param direction2 The direction the second ray is pointing
-	 * @return scalar parameter on the first ray describing the point where the intersection happens. May be negative. In case the
-	 *         rays are collinear, {@code Float.POSITIVE_INFINITY} will be returned. */
-	public static float intersectRayRay (Vector2 start1, Vector2 direction1, Vector2 start2, Vector2 direction2) {
-		float difx = start2.x - start1.x;
-		float dify = start2.y - start1.y;
-		float d1xd2 = direction1.x * direction2.y - direction1.y * direction2.x;
-		if (d1xd2 == 0.0f) {
-			return Float.POSITIVE_INFINITY; // collinear
-		}
-		float d2sx = direction2.x / d1xd2;
-		float d2sy = direction2.y / d1xd2;
-		return difx * d2sy - dify * d2sx;
+	/** @see #intersectRayRay(float, float, float, float, float, float, float, float, boolean, Vector2) */
+	public static float intersectRayRay (Vector2 origin1, Vector2 direction1, Vector2 origin2, Vector2 direction2) {
+		return intersectRayRay(origin1, direction1, origin2, direction2,
+				true, null);
+	}
+
+	/** @see #intersectRayRay(float, float, float, float, float, float, float, float, boolean, Vector2) */
+	public static float intersectRayRay (Vector2 first1, Vector2 second1, Vector2 first2, Vector2 second2,
+										 boolean secondIsDirection, Vector2 intersection) {
+		return intersectRayRay(first1.x, first1.y, second1.x, second1.y, first2.x, first2.y, second2.x, second2.y,
+				secondIsDirection, intersection);
+	}
+
+	/** Intersects a ray, defined by 2 point and another ray, also defined by two points.
+	 * The intersection point is stored in intersection in case an intersection is present. The intersection point can
+	 * be recovered by {@code first1 + s * (second1 - first1)} if secondIsDirection is false. if true,
+	 * the intersection point is recovered by {@code first1 + s * second1}. {@code s} is the return value of
+	 * this method.
+	 *
+	 * @param first1X the x-coordinate of the ray's first point
+	 * @param first1Y the y-coordinate of the ray's first point
+	 * @param second1X the x-coordinate of the ray's second point / direction
+	 * @param second1Y the y-coordinate of the ray's second point / direction
+	 * @param secondIsDirection a boolean value that indicates if the direction of the ray is used as a direction
+	 *                       to construct the ray or if it's used as a point.
+	 * @param intersection the vector, where the intersection point is written to (optional)
+	 * @return {@code float} the scalar, {@code Float.POSITIVE_INFINITY} or {@code Float.NEGATIVE_INFINITY} in
+	 * 			case of no intersection happens. */
+	public static float intersectRayRay (float first1X, float first1Y, float second1X, float second1Y,
+										   float first2X, float first2Y, float second2X, float second2Y,
+										   boolean secondIsDirection, Vector2 intersection) {
+		return intersectSegments(first1X, first1Y, second1X, second1Y,
+				first2X, first2Y, second2X, second2Y, secondIsDirection, true, false, intersection);
 	}
 
 	/** @see #intersectRayPlane(float, float, float, float, float, float, float, float, float, float, boolean, Vector3) */

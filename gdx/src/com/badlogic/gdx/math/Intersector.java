@@ -211,27 +211,47 @@ public final class Intersector {
 				plsV0.z > MathUtils.FLOAT_ROUNDING_ERROR ? 1 : (plsV0.z < -MathUtils.FLOAT_ROUNDING_ERROR ? -1 : 0));
 	}
 
-	/** Determines on which side of the given line the point is.<p>
-	 * Left and right are relative to the line's direction which is linePoint1 to linePoint2.
-	 * 
-	 * @return {@code -1} if the point is on the left side of the line.<p>
-	 * {@code 0} if the point is on the line.<p>
-	 * {@code 1} if the point is on the right side of the line. */
-	public static int pointLineSide (Vector2 linePoint1, Vector2 linePoint2, Vector2 point) {
-		return (int)Math.signum(
-			(linePoint2.x - linePoint1.x) * (point.y - linePoint1.y) - (linePoint2.y - linePoint1.y) * (point.x - linePoint1.x));
+	/** @see #pointLineSide(float, float, float, float, float, float, boolean) */
+	public static int pointLineSide (Vector2 first, Vector2 second, Vector2 point) {
+		return pointLineSide(first, second, point, false);
 	}
 
-	/** Determines on which side of the given line the point is.<p>
-	 * Left and right are relative to the line's direction which is linePoint1 to linePoint2.
-	 * 
-	 * @return {@code -1} if the point is on the left side of the line.<p>
-	 * {@code 0} if the point is on the line.<p>
-	 * {@code 1} if the point is on the right side of the line. */
-	public static int pointLineSide (float linePoint1X, float linePoint1Y, float linePoint2X, float linePoint2Y, float pointX,
-		float pointY) {
-		return (int)Math
-			.signum((linePoint2X - linePoint1X) * (pointY - linePoint1Y) - (linePoint2Y - linePoint1Y) * (pointX - linePoint1X));
+	/** @see #pointLineSide(float, float, float, float, float, float, boolean) */
+	public static int pointLineSide (Vector2 first, Vector2 second, Vector2 point, boolean secondIsDirection) {
+		return pointLineSide(first.x, first.y, second.x, second.y, point.x, point.y, secondIsDirection);
+	}
+
+	/** @see #pointLineSide(float, float, float, float, float, float, boolean) */
+	public static int pointLineSide (float firstX, float firstY, float secondX, float secondY, float pointX, float pointY) {
+		return pointLineSide(firstX, firstY, secondX, secondY, pointX, pointY, false);
+	}
+
+	/** Determines on which side of the given line the point is.
+	 * Left and right are relative to the line's direction which is first to second.
+	 *
+	 * @param firstX the x-coordinate of the line's first point
+	 * @param firstY the y-coordinate of the line's first point
+	 * @param secondX the x-coordinate of the line's second point
+	 * @param secondY the y-coordinate of the line's second point
+	 * @param pointX the x-coordinate of the point to check
+	 * @param pointY the y-coordinate of the point to check
+	 * @param secondIsDirection a boolean value that indicates if the second point of the line is used as a direction
+	 *                       to construct the line
+	 * @return {@code 1} if the point is on the left side of the line.
+	 * {@code 0} if the point is on the line.
+	 * {@code -1} if the point is on the right side of the line. */
+	public static int pointLineSide (float firstX, float firstY, float secondX, float secondY, float pointX, float pointY,
+									 boolean secondIsDirection) {
+		float z;
+		if (secondIsDirection) {
+			z = secondX * (pointY - firstY) - secondY * (pointX - firstX);
+		}
+		else {
+			z = (secondX - firstX) * (pointY - firstY) - (secondY - firstY) * (pointX - firstX);
+		}
+		if (z > MathUtils.FLOAT_ROUNDING_ERROR) return 1;
+		if (z < -MathUtils.FLOAT_ROUNDING_ERROR) return -1;
+		return 0;
 	}
 
 	/** Checks whether the given point is in the polygon.

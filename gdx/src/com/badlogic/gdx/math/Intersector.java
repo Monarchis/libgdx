@@ -1141,41 +1141,45 @@ public final class Intersector {
 		return Math.abs(s) <= radius;
 	}
 
-	/** Intersects the two lines and returns the intersection point in intersection.
-	 * 
-	 * @param p1 The first point of the first line
-	 * @param p2 The second point of the first line
-	 * @param p3 The first point of the second line
-	 * @param p4 The second point of the second line
-	 * @param intersection The intersection point. May be {@code null}.
-	 * @return Whether the two lines intersect */
-	public static boolean intersectLines (Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, Vector2 intersection) {
-		float x1 = p1.x, y1 = p1.y, x2 = p2.x, y2 = p2.y, x3 = p3.x, y3 = p3.y, x4 = p4.x, y4 = p4.y;
-
-		float d = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
-		if (d == 0) return false;
-
-		if (intersection != null) {
-			float ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / d;
-			intersection.set(x1 + (x2 - x1) * ua, y1 + (y2 - y1) * ua);
-		}
-		return true;
+	/** @see #intersectLines(float, float, float, float, float, float, float, float, boolean, Vector2) */
+	public static boolean intersectLines (Vector2 first1, Vector2 second1, Vector2 first2, Vector2 second2, Vector2 intersection) {
+		return intersectLines(first1, second1, first2, second2, false, intersection);
 	}
 
-	/** Intersects the two lines and returns the intersection point in intersection.
-	 * 
-	 * @param intersection The intersection point, or {@code null}.
-	 * @return Whether the two lines intersect */
-	public static boolean intersectLines (float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4,
-		Vector2 intersection) {
-		float d = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
-		if (d == 0) return false;
+	/** @see #intersectLines(float, float, float, float, float, float, float, float, boolean, Vector2) */
+	public static boolean intersectLines (Vector2 first1, Vector2 second1, Vector2 first2, Vector2 second2,
+										  boolean secondIsDirection, Vector2 intersection) {
+		return !Float.isInfinite(intersectLines(first1.x, first1.y, second1.x, second1.y, first2.x, first2.y, second2.x, second2.y,
+				secondIsDirection, intersection));
+	}
 
-		if (intersection != null) {
-			float ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / d;
-			intersection.set(x1 + (x2 - x1) * ua, y1 + (y2 - y1) * ua);
-		}
-		return true;
+	/** @see #intersectLines(float, float, float, float, float, float, float, float, boolean, Vector2) */
+	public static boolean intersectLines (float first1X, float first1Y, float second1X, float second1Y,
+										  float first2X, float first2Y, float second2X, float second2Y,
+										  Vector2 intersection) {
+		return !Float.isInfinite(intersectLines(first1X, first1Y, second1X, second1Y, first2X, first2Y, second2X, second2Y,
+				false, intersection));
+	}
+
+	/** Returns true if the two lines intersect and returns the intersection point in {@code Vector2 intersection}.
+	 *
+	 * @param first1X The first point's x-coordinate of the first line
+	 * @param first1Y The first point's y-coordinate of the first line
+	 * @param second1X The second point's x-coordinate of the first line
+	 * @param second1Y The second point's y-coordinate of the first line
+	 * @param first2X The first point's x-coordinate of the second line
+	 * @param first2Y The first point's y-coordinate of the second line
+	 * @param second2X The second point's x-coordinate of the second line
+	 * @param second2Y The second point's y-coordinate of the second line
+	 * @param secondIsDirection a boolean value that indicates if the second point of the line is used as a direction
+	 *                       to construct the line
+	 * @param intersection The intersection point (optional).
+	 * @return {@code float} whether the two lines intersect, and returns the scalar to restore the intersection */
+	public static float intersectLines (float first1X, float first1Y, float second1X, float second1Y,
+										float first2X, float first2Y, float second2X, float second2Y,
+										boolean secondIsDirection, Vector2 intersection) {
+		return intersectSegments(first1X, first1Y, second1X, second1Y, first2X, first2Y, second2X, second2Y,
+				secondIsDirection, false, false, intersection);
 	}
 
 	/** Check whether the given line and {@link Polygon} intersect.

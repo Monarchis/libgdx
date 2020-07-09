@@ -1154,48 +1154,101 @@ public final class Intersector {
 		return false;
 	}
 
-	/** Intersects the two line segments and returns the intersection point in intersection.
-	 * 
-	 * @param p1 The first point of the first line segment
-	 * @param p2 The second point of the first line segment
-	 * @param p3 The first point of the second line segment
-	 * @param p4 The second point of the second line segment
-	 * @param intersection The intersection point. May be {@code null}.
-	 * @return Whether the two line segments intersect */
-	public static boolean intersectSegments (Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, Vector2 intersection) {
-		float x1 = p1.x, y1 = p1.y, x2 = p2.x, y2 = p2.y, x3 = p3.x, y3 = p3.y, x4 = p4.x, y4 = p4.y;
-
-		float d = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
-		if (d == 0) return false;
-
-		float yd = y1 - y3;
-		float xd = x1 - x3;
-		float ua = ((x4 - x3) * yd - (y4 - y3) * xd) / d;
-		if (ua < 0 || ua > 1) return false;
-
-		float ub = ((x2 - x1) * yd - (y2 - y1) * xd) / d;
-		if (ub < 0 || ub > 1) return false;
-
-		if (intersection != null) intersection.set(x1 + (x2 - x1) * ua, y1 + (y2 - y1) * ua);
-		return true;
+	/** @see #intersectSegments(float, float, float, float, float, float, float, float, boolean, boolean, boolean, Vector2) */
+	public static boolean intersectSegments (Vector2 first1, Vector2 second1, Vector2 first2, Vector2 second2,
+		 Vector2 intersection) {
+		return intersectSegments(first1.x, first1.y, second1.x, second1.y, first2.x, first2.y, second2.x, second2.y, intersection);
 	}
 
-	/** @param intersection May be {@code null}. */
-	public static boolean intersectSegments (float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4,
-		Vector2 intersection) {
-		float d = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
-		if (d == 0) return false;
+	/** @see #intersectSegments(float, float, float, float, float, float, float, float, boolean, boolean, boolean, Vector2) */
+	public static boolean intersectSegments (Vector2 first1, Vector2 second1, Vector2 first2, Vector2 second2,
+											 boolean secondIsDirection, Vector2 intersection) {
+		return intersectSegments(first1.x, first1.y,second1.x, second1.y, first2.x, first2.y, second2.x, second2.y,
+				secondIsDirection, intersection);
+	}
 
-		float yd = y1 - y3;
-		float xd = x1 - x3;
-		float ua = ((x4 - x3) * yd - (y4 - y3) * xd) / d;
-		if (ua < 0 || ua > 1) return false;
+	/** @see #intersectSegments(float, float, float, float, float, float, float, float, boolean, boolean, boolean, Vector2) */
+	public static boolean intersectSegments (float first1X, float first1Y, float second1X, float second1Y,
+											 float first2X, float first2Y, float second2X, float second2Y,
+											 Vector2 intersection) {
+		return intersectSegments(first1X, first1Y, second1X, second1Y, first2X, first2Y, second2X, second2Y, false, intersection);
+	}
 
-		float ub = ((x2 - x1) * yd - (y2 - y1) * xd) / d;
-		if (ub < 0 || ub > 1) return false;
+	/** @see #intersectSegments(float, float, float, float, float, float, float, float, boolean, boolean, boolean, Vector2) */
+	public static boolean intersectSegments (float first1X, float first1Y, float second1X, float second1Y,
+											 float first2X, float first2Y, float second2X, float second2Y,
+											 boolean secondIsDirection, Vector2 intersection) {
+		return !Float.isInfinite(intersectSegments(first1X, first1Y, second1X, second1Y,
+				first2X, first2Y, second2X, second2Y, secondIsDirection, true, true, intersection));
+	}
 
-		if (intersection != null) intersection.set(x1 + (x2 - x1) * ua, y1 + (y2 - y1) * ua);
-		return true;
+	/** Determines whether the two segments intersect and returns the intersection point in intersection.
+	 *
+	 * @param first1X The x-coordinate of the first segments's first point
+	 * @param first1Y The y-coordinate of the first segments's first point
+	 * @param second1X The x-coordinate of the first segments's second point
+	 * @param second1Y The y-coordinate of the first segments's second point
+	 * @param first2X The x-coordinate of the second segments's first point
+	 * @param first2Y The y-coordinate of the second segments's first point
+	 * @param second2X The x-coordinate of the second segments's second point
+	 * @param second2Y The y-coordinate of the second segments's second point
+	 * @param lb the lower bound, if disabled, the negative direction is infinite (for lines / negative rays)
+	 * @param ub the upper bound, if disabled, the positive direction is infinite (for line / positive rays)
+	 * @param secondIsDirection a boolean value that indicates if the second point of the segment is used as a direction
+	 *                       to construct the segment
+	 * @param intersection The intersection point (optional).
+	 * @return {@code float} whether the two segments intersect, and returns the scalar to restore the intersection */
+	public static float intersectSegments (float first1X, float first1Y, float second1X, float second1Y,
+											 float first2X, float first2Y, float second2X, float second2Y,
+											 boolean secondIsDirection, boolean lb, boolean ub,
+											 Vector2 intersection) {
+		float xDir1 = second1X;
+		float yDir1 = second1Y;
+		float xDir2 = second2X;
+		float yDir2 = second2Y;
+		if (!secondIsDirection) {
+			xDir1 -= first1X;
+			yDir1 -= first1Y;
+			xDir2 -= first2X;
+			yDir2 -= first2Y;
+		}
+		float d = xDir1 * yDir2 - xDir2 * yDir1;
+
+		if (d == 0) {
+			float crs = first1X * first2Y - first1Y * first2X;
+			if (crs > 0) {
+				if (intersection != null) intersection.set(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
+				return Float.POSITIVE_INFINITY;
+			} else if (crs < 0) {
+				if (intersection != null) intersection.set(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY);
+				return Float.NEGATIVE_INFINITY;
+			}
+		}
+
+		float yd = first1Y - first2Y;
+		float xd = first1X - first2X;
+		float s1 = -(xd * yDir2 - yd * xDir2) / d;
+
+		if (ub && s1 > 1) {
+			if (intersection != null) intersection.set(Float.NaN, Float.NaN);
+			return Float.NEGATIVE_INFINITY;
+		}
+		if ((lb && s1 < 0)) {
+			if (intersection != null) intersection.set(Float.NaN, Float.NaN);
+			return Float.POSITIVE_INFINITY;
+		}
+		float s2 = -(xd * yDir1 - yd * xDir1) / d;
+		if ((ub && s2 > 1)) {
+			if (intersection != null) intersection.set(Float.NaN, Float.NaN);
+			return Float.NEGATIVE_INFINITY;
+		}
+		if ((lb && s2 < 0)) {
+			if (intersection != null) intersection.set(Float.NaN, Float.NaN);
+			return Float.POSITIVE_INFINITY;
+		}
+
+		if (intersection != null) intersection.set(first1X + xDir1 * s1, first1Y + yDir1 * s1);
+		return s1;
 	}
 
 	/** The cross product of 2 Vectors, defined by (a, b) and (c, d).

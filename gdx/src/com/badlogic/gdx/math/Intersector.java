@@ -414,27 +414,60 @@ public final class Intersector {
 		return nearestSegmentPoint(start, end, point, v2a).dst(point);
 	}
 
-	/** Returns a point on the segment nearest to the specified point. */
-	public static Vector2 nearestSegmentPoint (Vector2 start, Vector2 end, Vector2 point, Vector2 nearest) {
-		float length2 = start.dst2(end);
-		if (length2 == 0) return nearest.set(start);
-		float t = ((point.x - start.x) * (end.x - start.x) + (point.y - start.y) * (end.y - start.y)) / length2;
-		if (t < 0) return nearest.set(start);
-		if (t > 1) return nearest.set(end);
-		return nearest.set(start.x + t * (end.x - start.x), start.y + t * (end.y - start.y));
+	/** @see #nearestSegmentPoint(float, float, float, float, float, float, float, float, boolean, Vector2) */
+	public static Vector2 nearestSegmentPoint (Vector2 first, Vector2 second, Vector2 point, Vector2 nearest) {
+		return nearestSegmentPoint(first, second, point, false, nearest);
 	}
 
-	/** Returns a point on the segment nearest to the specified point. */
-	public static Vector2 nearestSegmentPoint (float startX, float startY, float endX, float endY, float pointX, float pointY,
+	/** @see #nearestSegmentPoint(float, float, float, float, float, float, float, float, boolean, Vector2) */
+	public static Vector2 nearestSegmentPoint (Vector2 first, Vector2 second, Vector2 point, boolean secondIsDirection, Vector2 nearest) {
+		return nearestSegmentPoint(first.x, first.y, second.x, second.y, point.x, point.y, secondIsDirection, nearest);
+	}
+
+	/** @see #nearestSegmentPoint(float, float, float, float, float, float, float, float, boolean, Vector2) */
+	public static Vector2 nearestSegmentPoint (float firstX, float firstY, float secondX, float secondY, float pointX, float pointY,
 		Vector2 nearest) {
-		final float xDiff = endX - startX;
-		final float yDiff = endY - startY;
+		return nearestSegmentPoint(firstX, firstY, secondX, secondY, pointX, pointY, false, nearest);
+	}
+
+	/** @see #nearestSegmentPoint(float, float, float, float, float, float, float, float, boolean, Vector2) */
+	public static Vector2 nearestSegmentPoint (float firstX, float firstY, float secondX, float secondY,
+											   float pointX, float pointY, boolean secondIsDirection, Vector2 nearest) {
+		return nearestSegmentPoint(firstX, firstY, secondX, secondY, 1, 1, pointX, pointY, secondIsDirection, nearest);
+	}
+
+	/** Returns a point on the segment nearest to the specified point.
+	 *
+	 * @param firstX the x-coordinate of the segment's first point
+	 * @param firstY the y-coordinate of the segment's first point
+	 * @param secondX the x-coordinate of the segment's second point
+	 * @param secondY the y-coordinate of the segment's second point
+	 * @param lowerScale the scaling of the segment in negative direction
+	 * @param upperScale the scaling of the segment in positive direction
+	 * @param pointX the x-coordinate of the point
+	 * @param pointY the y-coordinate of the point
+	 * @param secondIsDirection a boolean value that indicates if the second point of the segment is used as a direction
+	 *                       to construct the segment
+	 * @param nearest the nearest point (optional)
+	 * @return {@code Vector2} the nearest point on the segment relative to the given point. */
+	public static Vector2 nearestSegmentPoint (float firstX, float firstY, float secondX, float secondY,
+											   float lowerScale, float upperScale, float pointX, float pointY,
+											   boolean secondIsDirection, Vector2 nearest) {
+		float xDiff = secondX;
+		float yDiff = secondY;
+		if (!secondIsDirection) {
+			xDiff -= firstX;
+			yDiff -= firstY;
+		}
 		float length2 = xDiff * xDiff + yDiff * yDiff;
-		if (length2 == 0) return nearest.set(startX, startY);
-		float t = ((pointX - startX) * (endX - startX) + (pointY - startY) * (endY - startY)) / length2;
-		if (t < 0) return nearest.set(startX, startY);
-		if (t > 1) return nearest.set(endX, endY);
-		return nearest.set(startX + t * (endX - startX), startY + t * (endY - startY));
+		if (nearest == null) {
+			nearest = v2d;
+		}
+		if (length2 < MathUtils.FLOAT_ROUNDING_ERROR) return nearest.set(firstX, firstY);
+		float t = ((pointX - firstX) * xDiff + (pointY - firstY) * yDiff) / length2;
+		if (t > upperScale) return nearest.set(secondX, secondY);
+		if (t < 1 - lowerScale) return nearest.set(firstX, firstY);
+		return nearest.set(firstX + t * (secondX - firstX), firstY + t * (secondY - firstY));
 	}
 
 	/** Checks whether the given line segment intersects the given circle.

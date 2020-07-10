@@ -84,13 +84,6 @@ public final class Intersector {
 		return true;
 	}
 
-	/** @see #intersectSegmentPlane(Vector3, Vector3, Plane, boolean, boolean, boolean, Vector3) */
-	public static boolean intersectSegmentPlane (Ray ray, Plane plane,
-												 boolean secondIsDirection, boolean lb, boolean ub,
-												 Vector3 intersection) {
-		return intersectSegmentPlane(ray.origin, ray.direction, plane, secondIsDirection, lb, ub, intersection);
-	}
-
 	/** @see #intersectSegmentPlane(Vector3, Vector3, Plane, boolean, Vector3) */
 	public static boolean intersectSegmentPlane (Vector3 first, Vector3 second, Plane plane, Vector3 intersection) {
 		return intersectSegmentPlane(first, second, plane, false, intersection);

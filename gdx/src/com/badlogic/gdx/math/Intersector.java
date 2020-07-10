@@ -84,15 +84,87 @@ public final class Intersector {
 		return true;
 	}
 
-	public static boolean intersectSegmentPlane (Vector3 start, Vector3 end, Plane plane, Vector3 intersection) {
-		Vector3 dir = v0.set(end).sub(start);
-		float denom = dir.dot(plane.getNormal());
-		if (denom == 0f) return false;
-		float t = -(start.dot(plane.getNormal()) + plane.getD()) / denom;
-		if (t < 0 || t > 1) return false;
+	/** @see #intersectSegmentPlane(Vector3, Vector3, Plane, boolean, boolean, boolean, Vector3) */
+	public static boolean intersectSegmentPlane (Ray ray, Plane plane,
+												 boolean secondIsDirection, boolean lb, boolean ub,
+												 Vector3 intersection) {
+		return intersectSegmentPlane(ray.origin, ray.direction, plane, secondIsDirection, lb, ub, intersection);
+	}
 
-		intersection.set(start).add(dir.scl(t));
-		return true;
+	/** @see #intersectSegmentPlane(Vector3, Vector3, Plane, boolean, Vector3) */
+	public static boolean intersectSegmentPlane (Vector3 first, Vector3 second, Plane plane, Vector3 intersection) {
+		return intersectSegmentPlane(first, second, plane, false, intersection);
+	}
+
+	/** @see #intersectSegmentPlane(float, float, float, float, float, float, float, float, float, float,
+	 * boolean, boolean, boolean, Vector3) */
+	public static boolean intersectSegmentPlane (Vector3 first, Vector3 second, Plane plane,
+												 boolean secondIsDirection, boolean lb, boolean ub,
+												 Vector3 intersection) {
+		return intersectSegmentPlane(first.x, first.y, first.z, second.x, second.y, second.z, plane, secondIsDirection,
+				lb, ub, intersection);
+	}
+
+	/** @see #intersectSegmentPlane(float, float, float, float, float, float, float, float, float, float,
+	 * boolean, boolean, boolean, Vector3) */
+	public static boolean intersectSegmentPlane (Vector3 first, Vector3 second, Plane plane,
+												 boolean secondIsDirection,
+												 Vector3 intersection) {
+		return intersectSegmentPlane(first, second, plane, secondIsDirection, true, true, intersection);
+	}
+
+	/** @see #intersectSegmentPlane(float, float, float, float, float, float, float, float, float, float,
+	 *  boolean, boolean, boolean, Vector3) */
+	public static boolean intersectSegmentPlane (float x1, float y1, float z1, float x2, float y2, float z2, Plane plane,
+											   boolean secondIsDirection, boolean lb, boolean ub,
+											   Vector3 intersection) {
+		return !Float.isInfinite(intersectSegmentPlane(x1, y1, z1, x2, y2, z2,
+				plane.getNormal().x, plane.getNormal().y, plane.getNormal().z, plane.getD(), secondIsDirection, lb, ub,
+				intersection));
+	}
+
+	/** Intersects a segment, defined by two points and a {@link Plane}. The intersection point is stored in intersection
+	 * in case an intersection is present. The intersection point can be recovered by {@code first + s * second}, if
+	 * the second is used as a direction, else the point is recovered by {@code first + s * (second - first)}.
+	 * {@code s} is the return value of this method.
+	 *
+	 * @param x1 the x-coordinate of the segments's first point
+	 * @param y1 the y-coordinate of the segments's first point
+	 * @param z1 the z-coordinate of the segments's first point
+	 * @param x2 the x-coordinate of the segments's second point
+	 * @param y2 the y-coordinate of the segments's second point
+	 * @param z2 the z-coordinate of the segments's second point
+	 * @param nX the x-direction of the planes's normal
+	 * @param nY the Y-direction of the planes's normal
+	 * @param nZ the z-direction of the planes's normal
+	 * @param dist the distance of the normal
+	 * @param lb the lower bound, if disabled, the negative direction is infinite (for lines / negative rays)
+	 * @param ub the upper bound, if disabled, the positive direction is infinite (for line / positive rays)
+	 * @param secondIsDirection a boolean value that indicates if the second point of the segment is used as a direction
+	 *                       to construct the segment
+	 * @param intersection the vector, where the intersection point is written to (optional)
+	 * @return {@code float} the scalar, {@code Float.POSITIVE_INFINITY} or {@code Float.NEGATIVE_INFINITY} in
+	 * 			case of no intersection happens. */
+	public static float intersectSegmentPlane (float x1, float y1, float z1, float x2, float y2, float z2,
+											   float nX, float nY, float nZ, float dist,
+											   boolean secondIsDirection, boolean lb, boolean ub,
+											   Vector3 intersection) {
+		p.set(nX, nY, nZ, dist);
+		Vector3 dir = v0.set(x2, y2, z2);
+		Vector3 origin = v1.set(x1, y1, z1);
+		if (!secondIsDirection) dir.sub(origin);
+		float dot = dir.dot(p.getNormal());
+		if (dot != 0) {
+			float s = -(origin.dot(p.getNormal()) + p.getD()) / dot;
+			if (lb && s < 0) return Float.NEGATIVE_INFINITY;
+			if (ub && s > 1) return Float.POSITIVE_INFINITY;
+			if (intersection != null) intersection.set(origin).add(v0.set(dir).scl(s));
+			return s;
+		} else if (p.testPoint(origin) == Plane.PlaneSide.OnPlane) {
+			if (intersection != null) intersection.set(origin);
+			return 0;
+		}
+		return Float.POSITIVE_INFINITY;
 	}
 
 	/** @see #pointLineSide(float, float, float, float, float, float, float, float, float, boolean) */

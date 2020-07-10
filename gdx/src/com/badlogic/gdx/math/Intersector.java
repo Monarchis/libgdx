@@ -559,32 +559,56 @@ public final class Intersector {
 		return intersectSegmentPlane(x1, y1, z1, x2, y2, z2, nX, nY, nZ, dist, secondIsDirection, true, false, intersection);
 	}
 
-	/** Intersects a line and a plane. The intersection is returned as the distance from the first point to the plane. In case an
-	 * intersection happened, the return value is in the range [0,1]. The intersection point can be recovered by {@code point1 +
-	 * t * (point2 - point1)} where {@code t} is the return value of this method.
-	 * 
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @param x2
-	 * @param y2
-	 * @param z2
-	 * @param plane */
+	/** @see #intersectLinePlane(float, float, float, float, float, float, float, float, float, float, boolean, Vector3) */
+	public static boolean intersectLinePlane (Ray ray, Plane plane, Vector3 intersection) {
+		return intersectLinePlane(ray, plane, true, intersection);
+	}
+
+	/** @see #intersectLinePlane(float, float, float, float, float, float, float, float, float, float, boolean, Vector3) */
+	public static boolean intersectLinePlane (Ray ray, Plane plane, boolean secondIsDirection, Vector3 intersection) {
+		return intersectLinePlane(ray.origin, ray.direction, plane, secondIsDirection, intersection);
+	}
+
+	/** @see #intersectLinePlane(Vector3, Vector3, Plane, boolean, Vector3) */
+	public static boolean intersectLinePlane (Vector3 first, Vector3 second, Plane plane, Vector3 intersection) {
+		return intersectLinePlane(first, second, plane, false, intersection);
+	}
+
+	/** @see #intersectLinePlane(float, float, float, float, float, float, float, float, float, float, boolean, Vector3) */
+	public static boolean intersectLinePlane (Vector3 first, Vector3 second, Plane plane, boolean secondIsDirection,
+											 Vector3 intersection) {
+		return !Float.isInfinite(intersectLinePlane(first.x, first.y, first.z, second.x, second.y, second.z,
+				plane.getNormal().x, plane.getNormal().y, plane.getNormal().z, plane.getD(),
+				secondIsDirection, intersection));
+	}
+
+	/** @see #intersectLinePlane(float, float, float, float, float, float, float, float, float, float, boolean, Vector3) */
 	public static float intersectLinePlane (float x, float y, float z, float x2, float y2, float z2, Plane plane,
 		Vector3 intersection) {
-		Vector3 direction = tmp.set(x2, y2, z2).sub(x, y, z);
-		Vector3 origin = tmp2.set(x, y, z);
-		float denom = direction.dot(plane.getNormal());
-		if (denom != 0) {
-			float t = -(origin.dot(plane.getNormal()) + plane.getD()) / denom;
-			if (intersection != null) intersection.set(origin).add(direction.scl(t));
-			return t;
-		} else if (plane.testPoint(origin) == Plane.PlaneSide.OnPlane) {
-			if (intersection != null) intersection.set(origin);
-			return 0;
-		}
+		return intersectLinePlane(x, y, z, x2, y2, z2, plane.normal.x, plane.normal.y,plane.normal.z, plane.d, false, intersection);
+	}
 
-		return -1;
+	/** Intersects a line, defined by 2 point and a {@link Plane}, defined by it's normal and direction.
+	 * The intersection point is stored in intersection in case an intersection is present. The intersection point can
+	 * be recovered by {@code point1 + s * (point2 - point1)} if secondIsDirection is false. if true,
+	 * the intersection point is recovered by {@code point1 + s * point1}. {@code s} is the return value of
+	 * this method.
+	 *
+	 * @param x1 the x-coordinate of the lines's first point
+	 * @param y1 the y-coordinate of the lines's first point
+	 * @param z1 the z-coordinate of the lines's first point
+	 * @param x2 the x-coordinate of the lines's second point / direction
+	 * @param y2 the y-coordinate of the lines's second point / direction
+	 * @param z2 the z-coordinate of the lines's second point / direction
+	 * @param secondIsDirection a boolean value that indicates if the direction of the line is used as a direction
+	 *                       to construct the line or if it's used as a point.
+	 * @param intersection the vector, where the intersection point is written to (optional)
+	 * @return {@code float} the scalar, {@code Float.POSITIVE_INFINITY} or {@code Float.NEGATIVE_INFINITY} in
+	 * 			case of no intersection happens. */
+	public static float intersectLinePlane (float x1, float y1, float z1, float x2, float y2, float z2,
+										   float nX, float nY, float nZ, float dist,
+										   boolean secondIsDirection, Vector3 intersection) {
+		return intersectSegmentPlane(x1, y1, z1, x2, y2, z2, nX, nY, nZ, dist, secondIsDirection, false, false, intersection);
 	}
 
 	private static final Plane p = new Plane(new Vector3(), 0);

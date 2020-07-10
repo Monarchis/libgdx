@@ -504,26 +504,59 @@ public final class Intersector {
 		return difx * d2sy - dify * d2sx;
 	}
 
-	/** Intersects a {@link Ray} and a {@link Plane}. The intersection point is stored in intersection in case an intersection is
-	 * present.
-	 * 
-	 * @param ray The ray
-	 * @param plane The plane
-	 * @param intersection The vector the intersection point is written to (optional)
-	 * @return Whether an intersection is present. */
+	/** @see #intersectRayPlane(float, float, float, float, float, float, float, float, float, float, boolean, Vector3) */
 	public static boolean intersectRayPlane (Ray ray, Plane plane, Vector3 intersection) {
-		float denom = ray.direction.dot(plane.getNormal());
-		if (denom != 0) {
-			float t = -(ray.origin.dot(plane.getNormal()) + plane.getD()) / denom;
-			if (t < 0) return false;
+		return intersectRayPlane(ray, plane, true, intersection);
+	}
 
-			if (intersection != null) intersection.set(ray.origin).add(v0.set(ray.direction).scl(t));
-			return true;
-		} else if (plane.testPoint(ray.origin) == Plane.PlaneSide.OnPlane) {
-			if (intersection != null) intersection.set(ray.origin);
-			return true;
-		} else
-			return false;
+	/** @see #intersectRayPlane(float, float, float, float, float, float,
+	 * float, float, float, float, boolean, Vector3) */
+	public static boolean intersectRayPlane (Ray ray, Plane plane, boolean secondIsDirection, Vector3 intersection) {
+		return intersectRayPlane(ray.origin, ray.direction, plane, secondIsDirection, intersection);
+	}
+
+	/** @see #intersectRayPlane(Vector3, Vector3, Plane, boolean, Vector3) */
+	public static boolean intersectRayPlane (Vector3 first, Vector3 second, Plane plane, Vector3 intersection) {
+		return intersectRayPlane(first, second, plane, false, intersection);
+	}
+
+	/** @see #intersectRayPlane(float, float, float, float, float, float,
+	 *	float, float, float, float, boolean, Vector3) */
+	public static boolean intersectRayPlane (Vector3 first, Vector3 second, Plane plane, boolean secondIsDirection,
+	 	Vector3 intersection) {
+		return intersectRayPlane(first.x, first.y, first.z, second.x, second.y, second.z, plane, secondIsDirection,
+				intersection);
+	}
+
+	/** @see #intersectRayPlane(float, float, float, float, float, float, float, float, float, float, boolean, Vector3) */
+	public static boolean intersectRayPlane (float x1, float y1, float z1, float x2, float y2, float z2, Plane plane,
+										   boolean secondIsDirection, Vector3 intersection) {
+		return !Float.isInfinite(intersectSegmentPlane(x1, y1, z1, x2, y2, z2,
+				plane.getNormal().x, plane.getNormal().y, plane.getNormal().z, plane.getD(),
+				secondIsDirection, true, false, intersection));
+	}
+
+	/** Intersects a ray, defined by 2 point and a {@link Plane}, defined by it's normal and direction.
+	 * The intersection point is stored in intersection in case an intersection is present. The intersection point can
+	 * be recovered by {@code ray.origin + s * (ray.direction - ray.origin)} if secondIsDirection is false. if true,
+	 * the intersection point is recovered by {@code ray.origin + s * ray.direction}. {@code s} is the return value of
+	 * this method.
+	 *
+	 * @param x1 the x-coordinate of the ray's first point
+	 * @param y1 the y-coordinate of the ray's first point
+	 * @param z1 the z-coordinate of the ray's first point
+	 * @param x2 the x-coordinate of the ray's second point / direction
+	 * @param y2 the y-coordinate of the ray's second point / direction
+	 * @param z2 the z-coordinate of the ray's second point / direction
+	 * @param secondIsDirection a boolean value that indicates if the direction of the ray is used as a direction
+	 *                       to construct the ray or if it's used as a point.
+	 * @param intersection the vector, where the intersection point is written to (optional)
+	 * @return {@code float} the scalar, {@code Float.POSITIVE_INFINITY} or {@code Float.NEGATIVE_INFINITY} in
+	 * 			case of no intersection happens. */
+	public static float intersectRayPlane (float x1, float y1, float z1, float x2, float y2, float z2,
+											   float nX, float nY, float nZ, float dist,
+											   boolean secondIsDirection, Vector3 intersection) {
+		return intersectSegmentPlane(x1, y1, z1, x2, y2, z2, nX, nY, nZ, dist, secondIsDirection, true, false, intersection);
 	}
 
 	/** Intersects a line and a plane. The intersection is returned as the distance from the first point to the plane. In case an

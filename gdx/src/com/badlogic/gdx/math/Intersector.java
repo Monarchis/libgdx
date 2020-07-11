@@ -95,6 +95,57 @@ public final class Intersector {
 		return true;
 	}
 
+	/** @see #pointLineSide(float, float, float, float, float, float, float, float, float, boolean) */
+	public static Vector3 pointLineSide (Vector3 first, Vector3 second, Vector3 point) {
+		return pointLineSide(first, second, point, false);
+	}
+
+	/** @see #pointLineSide(float, float, float, float, float, float, float, float, float, boolean) */
+	public static Vector3 pointLineSide (Vector3 first, Vector3 second, Vector3 point, boolean secondIsDirection) {
+		return pointLineSide(first.x, first.y, first.z, second.x, second.y, second.z, point.x, point.y, point.z, secondIsDirection);
+	}
+
+	/** @see #pointLineSide(float, float, float, float, float, float, float, float, float, boolean) */
+	public static Vector3 pointLineSide (float firstX, float firstY, float firstZ, float secondX, float secondY, float secondZ,
+										 float pointX, float pointY, float pointZ) {
+		return pointLineSide(firstX, firstY, firstZ, secondX, secondY, secondZ, pointX, pointY, pointZ, false);
+	}
+
+	protected final static Vector3 plsV0 = new Vector3();
+	protected final static Vector3 plsV1 = new Vector3();
+
+	/** Determines on which side of the given line the point is.
+	 * Left and right are relative to the line's direction which is first to second.
+	 *
+	 * @param firstX the x-coordinate of the line's first point
+	 * @param firstY the y-coordinate of the line's first point
+	 * @param firstZ the z-coordinate of the line's first point
+	 * @param secondX the x-coordinate of the line's second point
+	 * @param secondY the y-coordinate of the line's second point
+	 * @param secondZ the z-coordinate of the line's first point
+	 * @param pointX the x-coordinate of the point to check
+	 * @param pointY the y-coordinate of the point to check
+	 * @param pointZ the y-coordinate of the point to check
+	 * @param secondIsDirection a boolean value that indicates if the second point of the line is used as a direction
+	 *                       to construct the line
+	 * @return {@code Vector3} the cross product, each axis is set to
+	 * {code 1} the point is on the left of the line in this direction
+	 * {code 0} the point is on the line in this direction
+	 * {code -1} the point is on the right of the line in this direction */
+	public static Vector3 pointLineSide (float firstX, float firstY, float firstZ, float secondX, float secondY, float secondZ,
+										 float pointX, float pointY, float pointZ,
+										 boolean secondIsDirection) {
+		plsV0.set(secondX, secondY, secondZ);
+		if (!secondIsDirection) {
+			plsV0.sub(firstX, firstY,firstZ);
+		}
+		plsV1.set(pointX, pointY, pointZ).sub(firstX, firstY, firstZ);
+		plsV0.crs(plsV1);
+		return plsV0.set(plsV0.x > MathUtils.FLOAT_ROUNDING_ERROR ? 1 : (plsV0.x < -MathUtils.FLOAT_ROUNDING_ERROR ? -1 : 0),
+				plsV0.y > MathUtils.FLOAT_ROUNDING_ERROR ? 1 : (plsV0.y < -MathUtils.FLOAT_ROUNDING_ERROR ? -1 : 0),
+				plsV0.z > MathUtils.FLOAT_ROUNDING_ERROR ? 1 : (plsV0.z < -MathUtils.FLOAT_ROUNDING_ERROR ? -1 : 0));
+	}
+
 	/** Determines on which side of the given line the point is.<p>
 	 * Left and right are relative to the line's direction which is linePoint1 to linePoint2.
 	 * 

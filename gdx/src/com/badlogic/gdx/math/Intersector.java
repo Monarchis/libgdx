@@ -47,7 +47,7 @@ public final class Intersector {
 	 * @param t1 the first vertex of the triangle
 	 * @param t2 the second vertex of the triangle
 	 * @param t3 the third vertex of the triangle
-	 * @return {@code true} whether the point is in the triangle */
+	 * @return true whether the point is in the triangle */
 	public static boolean isPointInTriangle (Vector3 point, Vector3 t1, Vector3 t2, Vector3 t3) {
 		p.set(t1, t2, t3);
 		if (p.testPoint(point) != PlaneSide.OnPlane) {
@@ -77,7 +77,7 @@ public final class Intersector {
 	 * @param a the first vertex of the triangle
 	 * @param b the second vertex of the triangle
 	 * @param c the third vertex of the triangle
-	 * @return {@code true} whether the given point is in the triangle */
+	 * @return true whether the given point is in the triangle */
 	public static boolean isPointInTriangle (Vector2 p, Vector2 a, Vector2 b, Vector2 c) {
 		return isPointInTriangle(p.x, p.y, a.x, a.y, b.y, b.x, c.x, c.y);
 	}
@@ -92,7 +92,7 @@ public final class Intersector {
 	 * @param by the x-coordinate of the triangles second vertex
 	 * @param cx the x-coordinate of the triangles second vertex
 	 * @param cy the x-coordinate of the triangles second vertex
-	 * @return {@code true} whether the given point is in the triangle */
+	 * @return true whether the given point is in the triangle */
 	public static boolean isPointInTriangle (float px, float py, float ax, float ay, float bx, float by, float cx, float cy) {
 		float px1 = px - ax;
 		float py1 = py - ay;
@@ -255,9 +255,9 @@ public final class Intersector {
 	 * @param pointY the y-coordinate of the point to check
 	 * @param secondIsDirection a boolean value that indicates if the second point of the line is used as a direction
 	 *                       to construct the line
-	 * @return {@code 1} if the point is on the left side of the line.
-	 * {@code 0} if the point is on the line.
-	 * {@code -1} if the point is on the right side of the line. */
+	 * @return 1 if the point is on the left side of the line.
+	 * 0 if the point is on the line.
+	 * -1 if the point is on the right side of the line. */
 	public static int pointLineSide (float firstX, float firstY, float secondX, float secondY, float pointX, float pointY,
 									 boolean secondIsDirection) {
 		float z;
@@ -276,7 +276,7 @@ public final class Intersector {
 	 * 
 	 * @param polygon The polygon vertices passed as an array
 	 * @param point The point
-	 * @return {@code true} if the point is in the polygon */
+	 * @return true if the point is in the polygon */
 	public static boolean isPointInPolygon (Array<Vector2> polygon, Vector2 point) {
 		Vector2 last = polygon.peek();
 		float x = point.x, y = point.y;
@@ -295,7 +295,7 @@ public final class Intersector {
 	 * 
 	 * @param offset Starting polygon index.
 	 * @param count Number of array indices to use after offset.
-	 * @return {@code true} if the point is in the polygon. */
+	 * @return true if the point is in the polygon. */
 	public static boolean isPointInPolygon (float[] polygon, int offset, int count, float x, float y) {
 		float lastX = polygon[offset + count - 2];
 		float lastY = polygon[offset + count - 1];
@@ -325,7 +325,7 @@ public final class Intersector {
 	 * @param p1 The polygon that is being clipped
 	 * @param p2 The clip polygon
 	 * @param intersection The first intersection of the two polygons found.
-	 * @return {@code true} whether the two polygons intersect. */
+	 * @return true whether the two polygons intersect. */
 	public static boolean intersectPolygons (Polygon p1, Polygon p2, Vector2 intersection) {
 		float[] polygon1 = p1.getTransformedVertices();
 		float[] polygon2 = p2.getTransformedVertices();
@@ -336,7 +336,7 @@ public final class Intersector {
 	 *
 	 * @param polygon1 the first polygon
 	 * @param polygon2 the second polygon
-	 * @return {@code true} whether the polygons intersect */
+	 * @return true whether the polygons intersect */
 	public static boolean intersectPolygons (FloatArray polygon1, FloatArray polygon2) {
 		return intersectPolygons(polygon1, polygon2, null);
 	}
@@ -378,7 +378,7 @@ public final class Intersector {
 	 *
 	 * @param polygon1 the first polygon
 	 * @param polygon2 the second polygon
-	 * @return {@code true} whether the polygons intersect */
+	 * @return true whether the polygons intersect */
 	public static boolean intersectPolygonEdges (FloatArray polygon1, FloatArray polygon2) {
 		return intersectPolygonEdges(polygon1, polygon2, null);
 	}
@@ -798,7 +798,7 @@ public final class Intersector {
 	 * @param t2 The second vertex of the triangle
 	 * @param t3 The third vertex of the triangle
 	 * @param intersection The intersection point (optional)
-	 * @return {@code true} in case an intersection is present. */
+	 * @return true in case an intersection is present. */
 	public static boolean intersectRayTriangle (Ray ray, Vector3 t1, Vector3 t2, Vector3 t3, Vector3 intersection) {
 		Vector3 edge1 = v0.set(t2).sub(t1);
 		Vector3 edge2 = v1.set(t3).sub(t1);
@@ -871,7 +871,7 @@ public final class Intersector {
 	 * @param center The center of the sphere
 	 * @param radius The radius of the sphere
 	 * @param intersection The intersection point (optional)
-	 * @return {@code true} whether an intersection is present. */
+	 * @return true whether an intersection is present. */
 	public static boolean intersectRaySphere (Ray ray, Vector3 center, float radius, Vector3 intersection) {
 		return intersectRaySphere(ray.origin, ray.direction, true, center, radius, intersection);
 	}
@@ -950,7 +950,7 @@ public final class Intersector {
 	 * @param ray The ray
 	 * @param box The box
 	 * @param intersection The intersection point (optional)
-	 * @return {@code true} whether an intersection is present. */
+	 * @return true whether an intersection is present. */
 	public static boolean intersectRayBounds (Ray ray, BoundingBox box, Vector3 intersection) {
 		float lowest = 0, t;
 		boolean hit = false;
@@ -1051,7 +1051,7 @@ public final class Intersector {
 	 * 
 	 * @param ray The ray
 	 * @param box The bounding box
-	 * @return {@code true} whether the ray and the bounding box intersect. */
+	 * @return true whether the ray and the bounding box intersect. */
 	static public boolean intersectRayBoundsFast (Ray ray, BoundingBox box) {
 		return intersectRayBoundsFast(ray, box.getCenter(tmp1), box.getDimensions(tmp2));
 	}
@@ -1061,7 +1061,7 @@ public final class Intersector {
 	 * @param ray The ray
 	 * @param center The center of the bounding box
 	 * @param dimensions The dimensions (width, height and depth) of the bounding box
-	 * @return {@code true} whether the ray and the bounding box intersect. */
+	 * @return true whether the ray and the bounding box intersect. */
 	static public boolean intersectRayBoundsFast (Ray ray, Vector3 center, Vector3 dimensions) {
 		final float divX = 1f / ray.direction.x;
 		final float divY = 1f / ray.direction.y;
@@ -1321,7 +1321,7 @@ public final class Intersector {
 	 * @param rectangle1 the first rectangle
 	 * @param rectangle1 the second rectangle
 	 * @param intersection the intersection (optional)
-	 * @return {@code true} whether the rectangles intersect */
+	 * @return true whether the rectangles intersect */
 	public static boolean intersectRectangles (Rectangle rectangle1, Rectangle rectangle2, Rectangle intersection) {
 		if (rectangle1.overlaps(rectangle2)) {
 			if (intersection != null) {
@@ -1342,7 +1342,7 @@ public final class Intersector {
 	 * @param endX y-coordinate end of line segment
 	 * @param endY y-coordinate end of line segment
 	 * @param rectangle rectangle that is being tested for collision
-	 * @return {@code true} whether the rectangle intersects with the line segment */
+	 * @return true whether the rectangle intersects with the line segment */
 	public static boolean intersectSegmentRectangle (float startX, float startY, float endX, float endY, Rectangle rectangle) {
 		float rectangleEndX = rectangle.x + rectangle.width;
 		float rectangleEndY = rectangle.y + rectangle.height;
@@ -1374,7 +1374,7 @@ public final class Intersector {
 	 * @param p1 The first point of the segment
 	 * @param p2 The second point of the segment
 	 * @param polygon the polygon to intersect
-	 * @return {@code true} whether polygon and segment intersect */
+	 * @return true whether polygon and segment intersect */
 	public static boolean intersectSegmentPolygon (Vector2 p1, Vector2 p2, Polygon polygon) {
 		float[] vertices = polygon.getTransformedVertices();
 		return intersectSegmentPolygon(p1.x, p1.y, p2.x, p2.y, vertices, 0, vertices.length, null);

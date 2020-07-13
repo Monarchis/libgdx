@@ -852,6 +852,7 @@ public final class Intersector {
 		return !(diffX * diffX + diffY * diffY + diffZ * diffZ > squareRadius);
 	}
 
+	private static final Vector3 irDir = new Vector3();
 	private static final Vector3 dir = new Vector3();
 	private static final Vector3 start = new Vector3();
 
@@ -860,18 +861,73 @@ public final class Intersector {
 	 * @param ray The ray, the direction component must be normalized before calling this method
 	 * @param center The center of the sphere
 	 * @param radius The radius of the sphere
-	 * @param intersection The intersection point (optional, can be {@code null})
-	 * @return Whether an intersection is present. */
+	 * @param intersection The intersection point (optional)
+	 * @return {@code true} whether an intersection is present. */
 	public static boolean intersectRaySphere (Ray ray, Vector3 center, float radius, Vector3 intersection) {
-		final float len = ray.direction.dot(center.x - ray.origin.x, center.y - ray.origin.y, center.z - ray.origin.z);
-		if (len < 0.f) // behind the ray
-			return false;
-		final float dst2 = center.dst2(ray.origin.x + ray.direction.x * len, ray.origin.y + ray.direction.y * len,
-			ray.origin.z + ray.direction.z * len);
+		return intersectRaySphere(ray.origin, ray.direction, true, center, radius, intersection);
+	}
+
+	/** Intersects a ray define by 2 Vectors and a sphere, returning the intersection point in intersection.
+	 *
+	 * @param first The origin of the ray
+	 * @param second The direction component, must be normalized before calling this method
+	 * @param secondIsDirection if false the direction is calculated as {@code second.sub(first).nor()}
+	 * @param center The center of the sphere
+	 * @param radius The radius of the sphere
+	 * @param intersection The intersection point (optional)
+	 * @return {@code true} whether an intersection is present. */
+	public static boolean intersectRaySphere (Vector3 first, Vector3 second, boolean secondIsDirection, Vector3 center,
+											  float radius, Vector3 intersection) {
+		irDir.set(second);
+		if (!secondIsDirection) {
+			irDir.sub(first).nor();
+		}
+		start.set(center).sub(first);
+		final float len = irDir.dot(start);
 		final float r2 = radius * radius;
-		if (dst2 > r2) return false;
-		if (intersection != null) intersection.set(ray.direction).scl(len - (float)Math.sqrt(r2 - dst2)).add(ray.origin);
+		if (start.len2() > r2) {
+			if (len < 0) {
+				if (intersection != null) intersection.set(Float.NaN, Float.NaN, Float.NaN);
+				return false;
+			}
+			else {
+				dir.set(start).crs(irDir);
+				if (dir.len2() > r2) {
+					if (intersection != null) intersection.set(Float.NaN, Float.NaN, Float.NaN);
+					return false;
+				}
+				final float dst2 = center.dst2(dir.set(irDir).scl(len).add(first));
+				if (intersection != null) intersection.set(irDir).scl(len - (float)Math.sqrt(r2 - dst2)).add(first);
+				return true;
+			}
+		}
+		if (intersection != null) {
+			final float dst2 = center.dst2(dir.set(irDir).scl(len).add(first));
+			intersection.set(irDir).scl((float)Math.sqrt(r2 - dst2) + len).add(first);
+		}
 		return true;
+	}
+
+	/** Intersects a {@link Ray} and a sphere, returning the intersection point's in entry and exit.
+	 *
+	 * @param ray The ray, the direction component must be normalized before calling this method
+	 * @param center The center of the sphere
+	 * @param radius The radius of the sphere
+	 * @param entry The entry point of the intersection (optional)
+	 * @param exit The exit point of the intersection (optional)
+	 * @return {@code true} whether an intersection is present. */
+	public static boolean intersectRaySphere (Ray ray, Vector3 center, float radius, Vector3 entry, Vector3 exit) {
+		if (isPointInSphere(center, radius, ray.origin)) {
+			entry.set(ray.origin);
+			return intersectRaySphere(ray, center, radius, exit);
+		}
+
+		if (intersectRaySphere(ray, center, radius, entry)) {
+			intersectRaySphere(entry, ray.direction, true, center, radius, exit);
+			return true;
+		}
+		if (exit != null) exit.set(Float.NaN, Float.NaN, Float.NaN);
+		return false;
 	}
 
 	/** Intersects a {@link Ray} and a {@link BoundingBox}, returning the intersection point in intersection. This intersection is

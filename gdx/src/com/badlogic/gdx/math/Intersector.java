@@ -1046,7 +1046,7 @@ public final class Intersector {
 	 * 
 	 * @param ray The ray
 	 * @param box The bounding box
-	 * @return Whether the ray and the bounding box intersect. */
+	 * @return {@code true} whether the ray and the bounding box intersect. */
 	static public boolean intersectRayBoundsFast (Ray ray, BoundingBox box) {
 		return intersectRayBoundsFast(ray, box.getCenter(tmp1), box.getDimensions(tmp2));
 	}
@@ -1056,7 +1056,7 @@ public final class Intersector {
 	 * @param ray The ray
 	 * @param center The center of the bounding box
 	 * @param dimensions The dimensions (width, height and depth) of the bounding box
-	 * @return Whether the ray and the bounding box intersect. */
+	 * @return {@code true} whether the ray and the bounding box intersect. */
 	static public boolean intersectRayBoundsFast (Ray ray, Vector3 center, Vector3 dimensions) {
 		final float divX = 1f / ray.direction.x;
 		final float divY = 1f / ray.direction.y;

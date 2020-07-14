@@ -40,15 +40,20 @@ public final class Intersector {
 	private Intersector () {
 	}
 
-	/** Returns whether the given point is inside the triangle. This assumes that the point is on the plane of the triangle. No
+	/** Determines whether the given point is inside the triangle. This assumes that the point is on the plane of the triangle. A
 	 * check is performed that this is the case.
 	 * 
 	 * @param point the point
 	 * @param t1 the first vertex of the triangle
 	 * @param t2 the second vertex of the triangle
 	 * @param t3 the third vertex of the triangle
-	 * @return whether the point is in the triangle */
+	 * @return {@code true} whether the point is in the triangle */
 	public static boolean isPointInTriangle (Vector3 point, Vector3 t1, Vector3 t2, Vector3 t3) {
+		p.set(t1, t2, t3);
+		if (p.testPoint(point) != PlaneSide.OnPlane) {
+			return false;
+		}
+
 		v0.set(t1).sub(point);
 		v1.set(t2).sub(point);
 		v2.set(t3).sub(point);
@@ -56,11 +61,13 @@ public final class Intersector {
 		float ab = v0.dot(v1);
 		float ac = v0.dot(v2);
 		float bc = v1.dot(v2);
-		float cc = v2.dot(v2);
 
+		float cc = v2.dot(v2);
 		if (bc * ac - cc * ab < 0) return false;
 		float bb = v1.dot(v1);
 		if (ab * bc - ac * bb < 0) return false;
+		float aa = v0.dot(v0);
+		if (ac * ab - bc * aa < 0) return false;
 		return true;
 	}
 

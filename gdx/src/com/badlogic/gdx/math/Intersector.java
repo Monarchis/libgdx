@@ -504,6 +504,40 @@ public final class Intersector {
 				secondIsDirection, nearest);
 	}
 
+	/** @see #nearestLinePoint(float, float, float, float, float, float, boolean, Vector2) */
+	public static Vector2 nearestLinePoint (Vector2 first, Vector2 second, Vector2 point, Vector2 nearest) {
+		return nearestLinePoint(first, second, point, false, nearest);
+	}
+
+	/** @see #nearestLinePoint(float, float, float, float, float, float, boolean, Vector2) */
+	public static Vector2 nearestLinePoint (Vector2 first, Vector2 second, Vector2 point, boolean secondIsDirection, Vector2 nearest) {
+		return nearestLinePoint(first.x, first.y, second.x, second.y, point.x, point.y, secondIsDirection, nearest);
+	}
+
+	/** @see #nearestLinePoint(float, float, float, float, float, float, boolean, Vector2) */
+	public static Vector2 nearestLinePoint (float firstX, float firstY, float secondX, float secondY, float pointX, float pointY,
+										   Vector2 nearest) {
+		return nearestLinePoint(firstX, firstY, secondX, secondY, pointX, pointY, false, nearest);
+	}
+
+	/** Returns a point on the line nearest to the specified point.
+	 *
+	 * @param firstX the x-coordinate of the line's first point
+	 * @param firstY the y-coordinate of the line's first point
+	 * @param secondX the x-coordinate of the line's second point
+	 * @param secondY the y-coordinate of the line's second point
+	 * @param pointX the x-coordinate of the point
+	 * @param pointY the y-coordinate of the point
+	 * @param secondIsDirection a boolean value that indicates if the second point of the line is used as a direction
+	 *                       to construct the line
+	 * @param nearest the nearest point (optional)
+	 * @return {@code Vector2} the nearest point on the line relative to the given point. */
+	public static Vector2 nearestLinePoint (float firstX, float firstY, float secondX, float secondY,
+										   float pointX, float pointY, boolean secondIsDirection, Vector2 nearest) {
+		return nearestSegmentPoint(firstX, firstY, secondX, secondY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY,
+				pointX, pointY, secondIsDirection, nearest);
+	}
+
 	/** Checks whether the given line segment intersects the given circle.
 	 * 
 	 * @param start The start point of the line segment

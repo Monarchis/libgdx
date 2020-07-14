@@ -832,6 +832,26 @@ public final class Intersector {
 		return true;
 	}
 
+	/** @see #isPointInSphere(Vector3, float, float, float, float) */
+	public static boolean isPointInSphere(Vector3 center, float radius, Vector3 point) {
+		return isPointInSphere(center, radius * radius, point.x, point.y, point.z);
+	}
+
+	/** Determines whether the point is in the sphere.
+	 *
+	 * @param center the center of the sphere
+	 * @param squareRadius the square radius of the sphere
+	 * @param x the x-coordinate of the point
+	 * @param y the y-coordinate of the point
+	 * @param z the z-coordinate of the point
+	 * @return {@code true} whether the point is in the sphere */
+	public static boolean isPointInSphere(Vector3 center, float squareRadius, float x, float y, float z) {
+		float diffX = (center.x - x);
+		float diffY = (center.y - y);
+		float diffZ = (center.z - z);
+		return !(diffX * diffX + diffY * diffY + diffZ * diffZ > squareRadius);
+	}
+
 	private static final Vector3 dir = new Vector3();
 	private static final Vector3 start = new Vector3();
 

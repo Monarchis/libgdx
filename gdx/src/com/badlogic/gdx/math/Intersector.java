@@ -807,33 +807,36 @@ public final class Intersector {
 		Vector3 pvec = v2.set(ray.direction).crs(edge2);
 		float det = edge1.dot(pvec);
 		if (MathUtils.isZero(det)) {
-			p.set(t1, t2, t3);
-			if (p.testPoint(ray.origin) == PlaneSide.OnPlane && Intersector.isPointInTriangle(ray.origin, t1, t2, t3)) {
+			if (isPointInTriangle(ray.origin, t1, t2, t3)) {
 				if (intersection != null) intersection.set(ray.origin);
 				return true;
 			}
-			return false;
 		}
 
 		det = 1.0f / det;
 
 		Vector3 tvec = i.set(ray.origin).sub(t1);
 		float u = tvec.dot(pvec) * det;
-		if (u < 0.0f || u > 1.0f) return false;
+		if (u < 0.0f || u > 1.0f) {
+			if (intersection != null) intersection.set(Float.NaN, Float.NaN, Float.NaN);
+			return false;
+		}
 
 		Vector3 qvec = tvec.crs(edge1);
 		float v = ray.direction.dot(qvec) * det;
-		if (v < 0.0f || u + v > 1.0f) return false;
+		if (v < 0.0f || u + v > 1.0f) {
+			if (intersection != null) intersection.set(Float.NaN, Float.NaN, Float.NaN);
+			return false;
+		}
 
 		float t = edge2.dot(qvec) * det;
-		if (t < 0) return false;
+		if (t < 0) {
+			if (intersection != null) intersection.set(Float.NaN, Float.NaN, Float.NaN);
+			return false;
+		}
 
 		if (intersection != null) {
-			if (t <= MathUtils.FLOAT_ROUNDING_ERROR) {
-				intersection.set(ray.origin);
-			} else {
-				ray.getEndPoint(intersection, t);
-			}
+			ray.getEndPoint(intersection, t);
 		}
 
 		return true;

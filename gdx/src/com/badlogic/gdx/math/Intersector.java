@@ -470,6 +470,40 @@ public final class Intersector {
 		return nearest.set(firstX + t * (secondX - firstX), firstY + t * (secondY - firstY));
 	}
 
+	/** @see #nearestRayPoint(float, float, float, float, float, float, boolean, Vector2) */
+	public static Vector2 nearestRayPoint (Vector2 first, Vector2 second, Vector2 point, Vector2 nearest) {
+		return nearestRayPoint(first, second, point, false, nearest);
+	}
+
+	/** @see #nearestRayPoint(float, float, float, float, float, float, boolean, Vector2) */
+	public static Vector2 nearestRayPoint (Vector2 first, Vector2 second, Vector2 point, boolean secondIsDirection, Vector2 nearest) {
+		return nearestRayPoint(first.x, first.y, second.x, second.y, point.x, point.y, secondIsDirection, nearest);
+	}
+
+	/** @see #nearestRayPoint(float, float, float, float, float, float, boolean, Vector2) */
+	public static Vector2 nearestRayPoint (float firstX, float firstY, float secondX, float secondY, float pointX, float pointY,
+											   Vector2 nearest) {
+		return nearestRayPoint(firstX, firstY, secondX, secondY, pointX, pointY, false, nearest);
+	}
+
+	/** Returns a point on the ray nearest to the specified point.
+	 *
+	 * @param firstX the x-coordinate of the ray's first point
+	 * @param firstY the y-coordinate of the ray's first point
+	 * @param secondX the x-coordinate of the ray's second point
+	 * @param secondY the y-coordinate of the ray's second point
+	 * @param pointX the x-coordinate of the point
+	 * @param pointY the y-coordinate of the point
+	 * @param secondIsDirection a boolean value that indicates if the second point of the ray is used as a direction
+	 *                       to construct the ray
+	 * @param nearest the nearest point (optional)
+	 * @return {@code Vector2} the nearest point on the ray relative to the given point. */
+	public static Vector2 nearestRayPoint (float firstX, float firstY, float secondX, float secondY,
+											   float pointX, float pointY, boolean secondIsDirection, Vector2 nearest) {
+		return nearestSegmentPoint(firstX, firstY, secondX, secondY, 1, Float.POSITIVE_INFINITY, pointX, pointY,
+				secondIsDirection, nearest);
+	}
+
 	/** Checks whether the given line segment intersects the given circle.
 	 * 
 	 * @param start The start point of the line segment

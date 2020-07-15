@@ -1056,12 +1056,26 @@ public final class Intersector {
 		return true;
 	}
 
-	static float det (float a, float b, float c, float d) {
+	/** The cross product of 2 Vectors, defined by (a, b) and (c, d).
+	 *
+	 * @param a the x-component of the first Vector
+	 * @param b the y-component of the first Vector
+	 * @param c the x-component of the second Vector
+	 * @param d the y-component of the second Vector
+	 * @return {@code float} the cross product */
+	static float crs (float a, float b, float c, float d) {
 		return a * d - b * c;
 	}
 
-	static double detd (double a, double b, double c, double d) {
-		return a * d - b * c;
+	/** The dot product of 2 Vectors, defined by (a, b) and (c, d).
+	 *
+	 * @param a the x-component of the first Vector
+	 * @param b the y-component of the first Vector
+	 * @param c the x-component of the second Vector
+	 * @param d the y-component of the second Vector
+	 * @return {@code float} the dot product */
+	static float dot (float a, float b, float c, float d) {
+		return a * c + b * d;
 	}
 
 	public static boolean overlaps (Circle c1, Circle c2) {
